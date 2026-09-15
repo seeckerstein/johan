@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Deutsch ↔ English Flashcards</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:#172033;background:#f5f7fb}
+*{box-sizing:border-box} body{margin:0;min-height:100vh;display:flex;justify-content:center}
+.app{width:min(900px,100%);padding:28px 18px 40px}
+h1{margin:0 0 6px;font-size:30px} .sub{color:#647084;margin-bottom:18px}
+.toolbar,.piles{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+button,select{border:0;border-radius:12px;padding:11px 14px;font-size:15px;cursor:pointer;background:white;box-shadow:0 1px 5px #d9deea}
+button:hover{transform:translateY(-1px)} .primary{background:#4d5bd2;color:white} .again{background:#ffe7e7} .done{background:#e2f6ed} .skip{background:#eef0f7}
+.card{height:330px;margin:20px 0;perspective:1000px;cursor:pointer}
+.inner{height:100%;position:relative;transition:transform .45s;transform-style:preserve-3d}
+.card.flipped .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:24px;background:white;box-shadow:0 10px 35px #dfe4ef;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:30px;text-align:center}
+.back{transform:rotateY(180deg);background:#eef2ff}
+.lang{font-size:13px;text-transform:uppercase;letter-spacing:.12em;color:#71809a;margin-bottom:15px}
+.word{font-size:42px;font-weight:750} .hint{margin-top:14px;color:#738096}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0}
+.stat{background:white;border-radius:14px;padding:10px;text-align:center;box-shadow:0 1px 5px #dfe4ef} .num{font-size:22px;font-weight:700}
+.actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.actions button{padding:15px;font-weight:700}
+.small{font-size:13px;color:#6c778a} .hidden{display:none}
+.progress{height:8px;background:#e5e8ef;border-radius:99px;overflow:hidden;margin-top:12px}
+.bar{height:100%;background:#4d5bd2;width:0}
+@media(max-width:600px){.word{font-size:32px}.card{height:280px}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>Deutsch ↔ English Flashcards</h1>
+<div class="sub">Based on the vocabulary in your uploaded Modul 3 notes.</div>
+
+<div class="toolbar">
+<label>Direction:
+<select id="direction">
+<option value="de-en">German → English</option>
+<option value="en-de">English → German</option>
+</select></label>
+<button id="shuffle">Shuffle</button>
+<button id="reset" class="primary">Reset session</button>
+</div>
+
+<div class="stats">
+<div class="stat"><div class="num" id="remaining">0</div><div class="small">current deck</div></div>
+<div class="stat"><div class="num" id="skipN">0</div><div class="small">skip</div></div>
+<div class="stat"><div class="num" id="againN">0</div><div class="small">redo</div></div>
+<div class="stat"><div class="num" id="doneN">0</div><div class="small">done</div></div>
+</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+
+<div class="card" id="card" title="Click to flip">
+<div class="inner">
+<div class="face front"><div class="lang" id="frontLang"></div><div class="word" id="frontWord"></div><div class="hint">Click to flip</div></div>
+<div class="face back"><div class="lang" id="backLang"></div><div class="word" id="backWord"></div><div class="hint">Choose a pile below</div></div>
+</div></div>
+
+<div class="actions">
+<button class="skip" id="skip">1 · Skip for future</button>
+<button class="again" id="again">2 · Redo</button>
+<button class="done" id="done">3 · Done</button>
+</div>
+
+<p class="small">Keyboard: <b>Space</b> = flip · <b>1</b> = skip · <b>2</b> = redo · <b>3</b> = done.</p>
+</div>
+
+<script>
+const original = [{"Deutsch":"das Referat","English":"presentation \/ report"},{"Deutsch":"die Präsentation","English":"presentation"},{"Deutsch":"der Vortrag","English":"talk \/ presentation"},{"Deutsch":"die Beschreibung","English":"description"},{"Deutsch":"aufschreiben","English":"to write down"},{"Deutsch":"notieren","English":"to note down"},{"Deutsch":"der Stapel","English":"stack \/ pile"},{"Deutsch":"aufeinanderstapeln","English":"to stack on top of each other"},{"Deutsch":"die KI (künstliche Intelligenz)","English":"AI (artificial intelligence)"},{"Deutsch":"zeigen","English":"to show"},{"Deutsch":"schauen","English":"to look \/ watch"},{"Deutsch":"sehen","English":"to see"},{"Deutsch":"programmieren","English":"to program"},{"Deutsch":"zum Programmieren","English":"for programming \/ for the purpose of programming"},{"Deutsch":"mit etwas zu tun haben","English":"to have to do with something"},{"Deutsch":"bemerken","English":"to notice"},{"Deutsch":"ein Risiko eingehen","English":"to take a risk"},{"Deutsch":"ein Konto löschen","English":"to delete an account"},{"Deutsch":"die Werbung","English":"advertising \/ advertisement"},{"Deutsch":"verschlüsselt","English":"encrypted"},{"Deutsch":"die Bedenken (Pl.)","English":"concerns \/ reservations"},{"Deutsch":"recherchieren","English":"to research \/ look up information"},{"Deutsch":"das Passwort ändern","English":"to change the password"},{"Deutsch":"schützen","English":"to protect"},{"Deutsch":"wenn man Pech hat","English":"if you're unlucky"},{"Deutsch":"zum Glück","English":"fortunately \/ luckily"},{"Deutsch":"herausfinden","English":"to find out"},{"Deutsch":"das Schriftzeichen","English":"character \/ written symbol"},{"Deutsch":"unterscheiden","English":"to distinguish \/ differentiate"},{"Deutsch":"unmöglich","English":"impossible"},{"Deutsch":"sich merken","English":"to remember \/ memorize"},{"Deutsch":"wenn ich das Wort sehe","English":"when I see the word"},{"Deutsch":"wann ich es mir merke","English":"when I remember it \/ when I memorize it"},{"Deutsch":"die Dyslexie","English":"dyslexia"},{"Deutsch":"auditiv","English":"auditory"},{"Deutsch":"visuell","English":"visual"},{"Deutsch":"den Akku aufladen","English":"to charge the battery"},{"Deutsch":"eine Datei speichern","English":"to save a file"},{"Deutsch":"aufgeladen","English":"charged"},{"Deutsch":"gespeichert","English":"saved"},{"Deutsch":"voll","English":"full"},{"Deutsch":"sein","English":"to be"},{"Deutsch":"ausgeschaltet","English":"switched off"},{"Deutsch":"einschalten","English":"to switch on \/ turn on"},{"Deutsch":"geputzt","English":"cleaned"},{"Deutsch":"sauber","English":"clean"},{"Deutsch":"zerstört","English":"destroyed"},{"Deutsch":"kaputt","English":"broken"},{"Deutsch":"geöffnet","English":"open"},{"Deutsch":"offen","English":"open"},{"Deutsch":"abgeschlossen","English":"completed \/ finished"},{"Deutsch":"fertig","English":"finished \/ done"},{"Deutsch":"anschrauben","English":"to screw on \/ fasten with screws"},{"Deutsch":"befestigen mit Schrauben","English":"to fasten with screws"},{"Deutsch":"der Schraubenzieher","English":"screwdriver"},{"Deutsch":"anschließen","English":"to connect"},{"Deutsch":"verbinden","English":"to connect"},{"Deutsch":"aufhängen an","English":"to hang on \/ attach to"},{"Deutsch":"die Steckdose","English":"power socket \/ electrical outlet"},{"Deutsch":"eingesteckt","English":"plugged in"},{"Deutsch":"eingeschaltet","English":"switched on"},{"Deutsch":"verbunden","English":"connected"},{"Deutsch":"belasten","English":"to strain \/ burden"},{"Deutsch":"schaden","English":"to harm \/ damage"},{"Deutsch":"beschränken","English":"to limit \/ restrict"},{"Deutsch":"begrenzen","English":"to limit"},{"Deutsch":"limitieren","English":"to limit"},{"Deutsch":"verschwenden","English":"to waste"},{"Deutsch":"die Zeitverschwendung","English":"waste of time"},{"Deutsch":"die Wasserverschwendung","English":"waste of water"},{"Deutsch":"die Energieverschwendung","English":"waste of energy"},{"Deutsch":"verschwinden","English":"to disappear"},{"Deutsch":"verschwendet","English":"wasted"},{"Deutsch":"beitragen zu","English":"to contribute to"},{"Deutsch":"etwas machen für","English":"to do something for"},{"Deutsch":"gängig","English":"common \/ usual"},{"Deutsch":"üblich","English":"usual \/ customary"},{"Deutsch":"herkömmlich","English":"conventional \/ traditional"},{"Deutsch":"ausgebeutet werden","English":"to be exploited"},{"Deutsch":"ausgenutzt werden","English":"to be exploited \/ taken advantage of"},{"Deutsch":"verweisen","English":"to refer \/ point to"},{"Deutsch":"verbleiben","English":"to remain"}];
+let deck=[], skipped=[], again=[], done=[], index=0, flipped=false;
+const $=id=>document.getElementById(id);
+
+function reset(){
+  deck=original.map((x,i)=>({...x,id:i})); skipped=[]; again=[]; done=[]; index=0; flipped=false; shuffle(false); render();
+}
+function shuffle(alsoRender=true){
+  for(let i=deck.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}
+  index=0; flipped=false; if(alsoRender)render();
+}
+function render(){
+  $("remaining").textContent=Math.max(deck.length-index,0);
+  $("skipN").textContent=skipped.length;
+  $("againN").textContent=again.length;
+  $("doneN").textContent=done.length;
+  $("bar").style.width=((done.length/original.length)*100)+"%";
+  if(index>=deck.length){
+    $("frontLang").textContent="Fertig";
+    $("frontWord").textContent="🎉";
+    $("backLang").textContent="Session";
+    $("backWord").textContent=`Done: ${done.length} · Redo: ${again.length} · Skip: ${skipped.length}`;
+    $("card").classList.remove("flipped"); return;
+  }
+  const x=deck[index], dir=$("direction").value;
+  const first=dir==="de-en"?x.Deutsch:x.English, second=dir==="de-en"?x.English:x.Deutsch;
+  $("frontLang").textContent=dir==="de-en"?"Deutsch":"English";
+  $("backLang").textContent=dir==="de-en"?"English":"Deutsch";
+  $("frontWord").textContent=first; $("backWord").textContent=second;
+  $("card").classList.toggle("flipped",flipped);
+}
+function flip(){ if(index<deck.length){flipped=!flipped;render()} }
+function move(bucket){
+  if(index>=deck.length)return;
+  const x=deck[index];
+  bucket.push(x); index++; flipped=false; render();
+  if(index<deck.length && bucket===again){
+    // redo cards go to the end of the current round
+    setTimeout(()=>{deck.push(x);render()},0);
+  }
+}
+$("card").onclick=flip;
+$("skip").onclick=()=>move(skipped);
+$("again").onclick=()=>move(again);
+$("done").onclick=()=>move(done);
+$("reset").onclick=reset;
+$("shuffle").onclick=()=>shuffle(true);
+$("direction").onchange=()=>{flipped=false;render()};
+document.onkeydown=e=>{if(e.target.tagName==="SELECT")return;if(e.code==="Space"){e.preventDefault();flip()}else if(e.key==="1")move(skipped);else if(e.key==="2")move(again);else if(e.key==="3")move(done)};
+reset();
+</script>
+</body>
+</html>
